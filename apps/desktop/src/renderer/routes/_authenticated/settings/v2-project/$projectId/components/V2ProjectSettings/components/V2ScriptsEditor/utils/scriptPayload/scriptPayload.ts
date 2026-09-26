@@ -48,6 +48,13 @@ export function trimScriptValue(value: string): string {
 		.replace(/(?:\r?\n[ \t]*)+$/, "");
 }
 
+export function trimEditedScriptValue(
+	value: string,
+	loadedEntries: string[],
+): string {
+	return value === loadedEntries.join("\n") ? value : trimScriptValue(value);
+}
+
 function toCommandsArray(value: string): string[] {
 	const script = trimScriptValue(value);
 	return script.trim() ? [script] : [];

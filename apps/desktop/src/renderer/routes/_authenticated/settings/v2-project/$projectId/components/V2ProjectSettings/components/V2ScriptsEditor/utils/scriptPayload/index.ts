@@ -6,5 +6,6 @@ export {
 	type ScriptPayload,
 	type ScriptTexts,
 	toScriptTexts,
+	trimEditedScriptValue,
 	trimScriptValue,
 } from "./scriptPayload";

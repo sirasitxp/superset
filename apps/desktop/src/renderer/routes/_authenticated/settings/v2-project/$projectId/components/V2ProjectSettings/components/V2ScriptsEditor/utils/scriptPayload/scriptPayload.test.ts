@@ -5,6 +5,7 @@ import {
 	type ScriptPayload,
 	type ScriptTexts,
 	toScriptTexts,
+	trimEditedScriptValue,
 	trimScriptValue,
 } from "./scriptPayload";
 
@@ -127,5 +128,17 @@ describe("trimScriptValue", () => {
 
 	it("keeps trailing spaces on the last line, such as an escaped space", () => {
 		expect(trimScriptValue("echo foo\\ \n  \n\t\n")).toBe("echo foo\\ ");
+	});
+});
+
+describe("trimEditedScriptValue", () => {
+	it("leaves an unedited field exactly as loaded, trailing blank entry included", () => {
+		expect(trimEditedScriptValue("a\nb\n", ["a", "b", ""])).toBe("a\nb\n");
+	});
+
+	it("trims a field whose text changed", () => {
+		expect(trimEditedScriptValue("a\nb\nc\n\n", ["a", "b", ""])).toBe(
+			"a\nb\nc",
+		);
 	});
 });

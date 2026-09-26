@@ -15,7 +15,7 @@ import {
 	type ScriptPayload,
 	type ScriptTexts,
 	toScriptTexts,
-	trimScriptValue,
+	trimEditedScriptValue,
 } from "./utils/scriptPayload";
 
 interface V2ScriptsEditorProps {
@@ -139,6 +139,7 @@ export function V2ScriptsEditor({
 
 					if (!payloadsEqual(payloadToSave, lastSavedRef.current)) {
 						await updateMutation.mutateAsync({ projectId, ...payloadToSave });
+						loadedRef.current = payloadToSave;
 						lastSavedRef.current = payloadToSave;
 					}
 
@@ -209,7 +210,10 @@ export function V2ScriptsEditor({
 				debounceTimerRef.current = null;
 			}
 
-			const trimmed = trimScriptValue(latestValuesRef.current[field]);
+			const trimmed = trimEditedScriptValue(
+				latestValuesRef.current[field],
+				loadedRef.current[field],
+			);
 			const nextValues = { ...latestValuesRef.current, [field]: trimmed };
 			latestValuesRef.current = nextValues;
 
