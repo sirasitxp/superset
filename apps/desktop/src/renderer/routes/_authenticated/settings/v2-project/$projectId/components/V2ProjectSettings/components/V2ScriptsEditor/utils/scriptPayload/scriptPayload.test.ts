@@ -77,6 +77,7 @@ describe("buildPayload", () => {
 	it("saves a blank field as no entries so the .sh fallback still applies", () => {
 		const payload = buildPayload(editedTexts({ teardown: "  \n\t\n" }), EMPTY);
 		expect(payload.teardown).toEqual([]);
+		expect(buildPayload(editedTexts({ run: "   " }), EMPTY).run).toEqual([]);
 	});
 
 	it("round-trips a loaded multi-line script unchanged", () => {
@@ -101,6 +102,16 @@ describe("buildPayload", () => {
 			run: ["bun dev"],
 		});
 	});
+
+	it("keeps an unedited legacy field whose text has trailing blank lines", () => {
+		const loaded: ScriptPayload = {
+			setup: ["bun install", ""],
+			teardown: [],
+			run: [],
+		};
+		const texts = { ...toScriptTexts(loaded), run: "bun dev" };
+		expect(buildPayload(texts, loaded).setup).toEqual(["bun install", ""]);
+	});
 });
 
 describe("trimScriptValue", () => {
@@ -112,5 +123,9 @@ describe("trimScriptValue", () => {
 
 	it("leaves a script without surrounding whitespace untouched", () => {
 		expect(trimScriptValue(CONTROL_FLOW_SCRIPT)).toBe(CONTROL_FLOW_SCRIPT);
+	});
+
+	it("keeps trailing spaces on the last line, such as an escaped space", () => {
+		expect(trimScriptValue("echo foo\\ \n  \n\t\n")).toBe("echo foo\\ ");
 	});
 });

@@ -43,12 +43,14 @@ export function toScriptTexts(payload: ScriptPayload): ScriptTexts {
 }
 
 export function trimScriptValue(value: string): string {
-	return value.replace(/^(?:[ \t]*\r?\n)+/, "").trimEnd();
+	return value
+		.replace(/^(?:[ \t]*\r?\n)+/, "")
+		.replace(/(?:\r?\n[ \t]*)+$/, "");
 }
 
 function toCommandsArray(value: string): string[] {
 	const script = trimScriptValue(value);
-	return script ? [script] : [];
+	return script.trim() ? [script] : [];
 }
 
 function commandsForField(

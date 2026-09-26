@@ -200,29 +200,27 @@ export function V2ScriptsEditor({
 		[scheduleSave],
 	);
 
-	const handleBlur = useCallback(async () => {
-		focusedRef.current = null;
+	const handleBlur = useCallback(
+		async (field: ScriptFieldName) => {
+			focusedRef.current = null;
 
-		if (debounceTimerRef.current) {
-			clearTimeout(debounceTimerRef.current);
-			debounceTimerRef.current = null;
-		}
+			if (debounceTimerRef.current) {
+				clearTimeout(debounceTimerRef.current);
+				debounceTimerRef.current = null;
+			}
 
-		const trimmedValues = {
-			setup: trimScriptValue(latestValuesRef.current.setup),
-			teardown: trimScriptValue(latestValuesRef.current.teardown),
-			run: trimScriptValue(latestValuesRef.current.run),
-		};
-		latestValuesRef.current = trimmedValues;
+			const trimmed = trimScriptValue(latestValuesRef.current[field]);
+			const nextValues = { ...latestValuesRef.current, [field]: trimmed };
+			latestValuesRef.current = nextValues;
 
-		if (trimmedValues.setup !== setupValue) setSetupValue(trimmedValues.setup);
-		if (trimmedValues.teardown !== teardownValue) {
-			setTeardownValue(trimmedValues.teardown);
-		}
-		if (trimmedValues.run !== runValue) setRunValue(trimmedValues.run);
+			if (field === "setup") setSetupValue(trimmed);
+			if (field === "teardown") setTeardownValue(trimmed);
+			if (field === "run") setRunValue(trimmed);
 
-		await flushSave(buildPayload(trimmedValues, loadedRef.current));
-	}, [flushSave, runValue, setupValue, teardownValue]);
+			await flushSave(buildPayload(nextValues, loadedRef.current));
+		},
+		[flushSave],
+	);
 
 	if (isLoading) {
 		return (
@@ -283,7 +281,7 @@ export function V2ScriptsEditor({
 						onFocus={() => {
 							focusedRef.current = "setup";
 						}}
-						onBlur={() => handleBlur()}
+						onBlur={() => handleBlur("setup")}
 					/>
 				</TabsContent>
 				<TabsContent value="teardown">
@@ -294,7 +292,7 @@ export function V2ScriptsEditor({
 						onFocus={() => {
 							focusedRef.current = "teardown";
 						}}
-						onBlur={() => handleBlur()}
+						onBlur={() => handleBlur("teardown")}
 					/>
 				</TabsContent>
 				<TabsContent value="run">
@@ -305,7 +303,7 @@ export function V2ScriptsEditor({
 						onFocus={() => {
 							focusedRef.current = "run";
 						}}
-						onBlur={() => handleBlur()}
+						onBlur={() => handleBlur("run")}
 					/>
 				</TabsContent>
 			</Tabs>
